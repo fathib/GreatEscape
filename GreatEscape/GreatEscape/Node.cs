@@ -20,6 +20,7 @@ namespace GreatEscape
         public Node(int x, int y)
         {
             Position = new Point(x,y);
+            State= NodeState.Untested;
         }
 
         public static int GetTraversalCost()

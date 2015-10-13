@@ -1,9 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
 namespace GreatEscape
 {
+
+
+
     public class Board
     {
         private readonly int _width;
@@ -16,6 +20,39 @@ namespace GreatEscape
         private Node _endNode;
 
 
+        public Node MyPosition
+        {
+            get
+            {
+                Point position = _playersPositions[_myId];
+                Node node = _map[position.X, position.Y];
+                return node;
+            }
+        }
+
+        public string GetNextOrder()
+        {
+            string order = String.Empty;
+
+            Point position = _playersPositions[_myId];
+            Node node = _map[position.X, position.Y];
+            var myPath = FindPath(node);
+
+            var nextPosition = myPath[0];
+
+            if (nextPosition.X > position.X)
+                order = "RIGHT";
+            else if (nextPosition.X < position.X)
+                order = "LEFT";
+            else if (nextPosition.Y > position.Y)
+                order = "DOWN";
+            else if (nextPosition.Y < position.Y)
+                order = "UP";
+
+            return order;
+
+        }
+      
         public Board(int width, int height, int myId, int playerCount)
         {
             _width = width;
@@ -56,13 +93,12 @@ namespace GreatEscape
             _playersPositions[Id] = new Point(x, y);
         }
 
-        public List<Point> FindPath()
+        public List<Point> FindPath(Node myNode)
         {
             // The start node is the first entry in the 'open' list
             List<Point> path = new List<Point>();
 
-            Point myPosition = _playersPositions[_myId];
-            Node myNode = _map[myPosition.X, myPosition.Y];
+          
 
             bool success = Search(myNode);
             if (success)
@@ -92,7 +128,7 @@ namespace GreatEscape
             while (nextNodes.Count > 0)
             {
                 var nextNode = nextNodes[0];
-                nextNodes.RemoveAt(1);
+                nextNodes.RemoveAt(0);
                 nextNode.State = NodeState.Closed;
                 if (IsEndLocation(nextNode))
                 {
@@ -100,7 +136,7 @@ namespace GreatEscape
                     return true;
                 }
               
-                nextNodes.AddRange(GetAdjacentWalkableNodes(currentNode));
+                nextNodes.AddRange(GetAdjacentWalkableNodes(nextNode));
                 nextNodes.Sort((node1, node2) => node1.DistanceFromStart.CompareTo(node2.DistanceFromStart));
 
             }
